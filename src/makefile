@@ -259,6 +259,7 @@ SOCKET_SO=socket-$(SOCKET_V).$(SO)
 MIME_SO=mime-$(MIME_V).$(SO)
 UNIX_SO=unix.$(SO)
 SERIAL_SO=serial.$(SO)
+TIMERFD_SO=timerfd.$(SO)
 SOCKET=$(SOCKET_$(PLAT))
 
 #------
@@ -324,6 +325,15 @@ SERIAL_OBJS=\
 	usocket.$(O) \
 	serial.$(O)
 
+TIMERFD_OBJS=\
+	buffer.$(O) \
+	auxiliar.$(O) \
+	options.$(O) \
+	timeout.$(O) \
+	io.$(O) \
+	usocket.$(O) \
+	timerfd.$(O)
+
 #------
 # Files to install
 #
@@ -378,13 +388,16 @@ $(SOCKET_SO): $(SOCKET_OBJS)
 $(MIME_SO): $(MIME_OBJS)
 	$(LD) $(MIME_OBJS) $(LDFLAGS)$@
 
-all-unix: all $(UNIX_SO) $(SERIAL_SO)
+all-unix: all $(UNIX_SO) $(SERIAL_SO) $(TIMERFD_SO)
 
 $(UNIX_SO): $(UNIX_OBJS)
 	$(LD) $(UNIX_OBJS) $(LDFLAGS)$@
 
 $(SERIAL_SO): $(SERIAL_OBJS)
 	$(LD) $(SERIAL_OBJS) $(LDFLAGS)$@
+
+$(TIMERFD_SO): $(TIMERFD_OBJS)
+	$(LD) $(TIMERFD_OBJS) $(LDFLAGS)$@
 
 install: 
 	$(INSTALL_DIR) $(INSTALL_TOP_LDIR)
@@ -399,13 +412,14 @@ install:
 install-unix: install
 	$(INSTALL_EXEC) $(UNIX_SO) $(INSTALL_SOCKET_CDIR)/$(UNIX_SO)
 	$(INSTALL_EXEC) $(SERIAL_SO) $(INSTALL_SOCKET_CDIR)/$(SERIAL_SO)
+	$(INSTALL_EXEC) $(TIMERFD_SO) $(INSTALL_SOCKET_CDIR)/$(TIMERFD_SO)
 
 local:
 	$(MAKE) install INSTALL_TOP_CDIR=.. INSTALL_TOP_LDIR=..
 
 clean:
-	rm -f $(SOCKET_SO) $(SOCKET_OBJS) $(SERIAL_OBJS)
-	rm -f $(MIME_SO) $(UNIX_SO) $(SERIAL_SO) $(MIME_OBJS) $(UNIX_OBJS)
+	rm -f $(SOCKET_SO) $(SOCKET_OBJS) $(SERIAL_OBJS) $(TIMERFD_OBJS)
+	rm -f $(MIME_SO) $(UNIX_SO) $(SERIAL_SO) $(MIME_OBJS) $(UNIX_OBJS) $(TIMERFD_OBJS)
 
 .PHONY: all $(PLATS) default clean echo none
 
