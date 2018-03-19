@@ -1,7 +1,7 @@
 /*=========================================================================*\
-* Timerfd
-* LuaSocket toolkit
-\*=========================================================================*/
+ * Timerfd
+ * LuaSocket toolkit
+ \*=========================================================================*/
 #include <string.h>
 
 #include "lua.h"
@@ -18,19 +18,19 @@
 #define TFD_GEN_NAME    "timerfd{any}"
 
 /*
-Reuses userdata definition from unix.h, since it is useful for all
-stream-like objects.
-
-If we stored the timerfd path for use in error messages or userdata
-printing, we might need our own userdata definition.
-
-Group usage is semi-inherited from unix.c, but unnecessary since we
-have only one object type.
-*/
+ *   Reuses userdata definition from unix.h, since it is useful for all
+ *   stream-like objects.
+ *
+ *   If we stored the timerfd path for use in error messages or userdata
+ *   printing, we might need our own userdata definition.
+ *
+ *   Group usage is semi-inherited from unix.c, but unnecessary since we
+ *   have only one object type.
+ */
 
 /*=========================================================================*\
-* Internal function prototypes
-\*=========================================================================*/
+ * Internal function prototypes
+ \*=========================================================================*/
 static int global_create(lua_State *L);
 static int meth_receive(lua_State *L);
 static int meth_close(lua_State *L);
@@ -39,36 +39,36 @@ static int meth_getfd(lua_State *L);
 
 /* timerfd object methods */
 static luaL_Reg timerfd_methods[] = {
-    {"__gc",        meth_close},
-    {"__tostring",  auxiliar_tostring},
-    {"close",       meth_close},
-    {"getfd",       meth_getfd},
-    {"receive",     meth_receive},
-    {"settimeout",  meth_settimeout},
-    {NULL,          NULL}
+	{"__gc",        meth_close},
+	{"__tostring",  auxiliar_tostring},
+	{"close",       meth_close},
+	{"getfd",       meth_getfd},
+	{"receive",     meth_receive},
+	{"settimeout",  meth_settimeout},
+	{NULL,          NULL}
 };
 
 /*-------------------------------------------------------------------------*\
-* Initializes module
-\*-------------------------------------------------------------------------*/
+ * Initializes module
+ \*-------------------------------------------------------------------------*/
 LUASOCKET_API int luaopen_socket_timerfd(lua_State *L) {
-    /* create classes */
-    auxiliar_newclass(L, TFD_CLASS_NAME, timerfd_methods);
-    /* create class groups */
-    auxiliar_add2group(L, TFD_CLASS_NAME, TFD_GEN_NAME);
-    lua_pushcfunction(L, global_create);
-    return 1;
+	/* create classes */
+	auxiliar_newclass(L, TFD_CLASS_NAME, timerfd_methods);
+	/* create class groups */
+	auxiliar_add2group(L, TFD_CLASS_NAME, TFD_GEN_NAME);
+	lua_pushcfunction(L, global_create);
+	return 1;
 }
 
 /*=========================================================================*\
-* Lua methods
-\*=========================================================================*/
+ * Lua methods
+ \*=========================================================================*/
 /*-------------------------------------------------------------------------*\
-* Just call buffered IO methods
-\*-------------------------------------------------------------------------*/
+ * Just call buffered IO methods
+ \*-------------------------------------------------------------------------*/
 static int meth_receive(lua_State *L) {
-    p_unix un = (p_unix) auxiliar_checkclass(L, TFD_CLASS_NAME, 1);
-    return buffer_meth_receive(L, &un->buf);
+	p_unix un = (p_unix) auxiliar_checkclass(L, TFD_CLASS_NAME, 1);
+	return buffer_meth_receive(L, &un->buf);
 }
 
 static void tfd_set_timeout(int fd, double sec, double eps)
@@ -101,31 +101,31 @@ static void tfd_set_timeout(int fd, double sec, double eps)
 }
 
 /*-------------------------------------------------------------------------*\
-* Select support methods
-\*-------------------------------------------------------------------------*/
+ * Select support methods
+ \*-------------------------------------------------------------------------*/
 static int meth_getfd(lua_State *L) {
-    p_unix un = (p_unix) auxiliar_checkgroup(L, TFD_GEN_NAME, 1);
-    lua_pushnumber(L, (int) un->sock);
-    return 1;
+	p_unix un = (p_unix) auxiliar_checkgroup(L, TFD_GEN_NAME, 1);
+	lua_pushnumber(L, (int) un->sock);
+	return 1;
 }
 
 /*-------------------------------------------------------------------------*\
-* Closes socket used by object
-\*-------------------------------------------------------------------------*/
+ * Closes socket used by object
+ \*-------------------------------------------------------------------------*/
 static int meth_close(lua_State *L)
 {
-    p_unix un = (p_unix) auxiliar_checkgroup(L, TFD_GEN_NAME, 1);
-    socket_destroy(&un->sock);
-    lua_pushnumber(L, 1);
-    return 1;
+	p_unix un = (p_unix) auxiliar_checkgroup(L, TFD_GEN_NAME, 1);
+	socket_destroy(&un->sock);
+	lua_pushnumber(L, 1);
+	return 1;
 }
 
 
 /*-------------------------------------------------------------------------*\
-* Just call tm methods
-\*-------------------------------------------------------------------------*/
+ * Just call tm methods
+ \*-------------------------------------------------------------------------*/
 static int meth_settimeout(lua_State *L) {
-    p_unix un = (p_unix) auxiliar_checkgroup(L, TFD_GEN_NAME, 1);
+	p_unix un = (p_unix) auxiliar_checkgroup(L, TFD_GEN_NAME, 1);
 	double eps = 0.0, itv = 0.0;
 
 	if (un->sock == SOCKET_INVALID)
@@ -143,8 +143,8 @@ static int meth_settimeout(lua_State *L) {
 }
 
 /*=========================================================================*\
-* Library functions
-\*=========================================================================*/
+ * Library functions
+ \*=========================================================================*/
 
 static int tfd_read(p_socket ps, char *data, size_t count, size_t *got, p_timeout tm)
 {
@@ -152,7 +152,7 @@ static int tfd_read(p_socket ps, char *data, size_t count, size_t *got, p_timeou
 	int len;
 
 	(void)tm;
-    if (*ps == SOCKET_INVALID) return IO_CLOSED;
+	if (*ps == SOCKET_INVALID) return IO_CLOSED;
 	do {
 		if (count >= sizeof v) {
 			len = read(*ps, data, sizeof v);
@@ -172,8 +172,8 @@ static int tfd_read(p_socket ps, char *data, size_t count, size_t *got, p_timeou
 }
 
 /*-------------------------------------------------------------------------*\
-* Creates a timerfd object
-\*-------------------------------------------------------------------------*/
+ * Creates a timerfd object
+ \*-------------------------------------------------------------------------*/
 static int global_create(lua_State *L) {
 	double eps, itv = 0.0;
 
@@ -183,31 +183,31 @@ static int global_create(lua_State *L) {
 	else
 		itv = eps;
 
-    /* allocate unix object */
-    p_unix un = (p_unix) lua_newuserdata(L, sizeof(t_unix));
+	/* allocate unix object */
+	p_unix un = (p_unix) lua_newuserdata(L, sizeof(t_unix));
 
-    /* open timerfd device */
-    t_socket sock = timerfd_create(CLOCK_MONOTONIC, TFD_NONBLOCK | TFD_CLOEXEC);
+	/* open timerfd device */
+	t_socket sock = timerfd_create(CLOCK_MONOTONIC, TFD_NONBLOCK | TFD_CLOEXEC);
 
-    /* printf("open %s on %d\n", path, sock); */
+	/* printf("open %s on %d\n", path, sock); */
 
-    if (sock < 0)  {
-        lua_pushnil(L);
-        lua_pushstring(L, socket_strerror(errno));
-        lua_pushnumber(L, errno);
-        return 3;
-    }
-    /* set its type as client object */
-    auxiliar_setclass(L, TFD_CLASS_NAME, -1);
-    /* initialize remaining structure fields */
-    un->sock = sock;
-    io_init(&un->io, (p_send) NULL, (p_recv) tfd_read,
-            (p_error) socket_ioerror, &un->sock);
-    timeout_init(&un->tm, -1, -1);
-    buffer_init(&un->buf, &un->io, &un->tm);
+	if (sock < 0)  {
+		lua_pushnil(L);
+		lua_pushstring(L, socket_strerror(errno));
+		lua_pushnumber(L, errno);
+		return 3;
+	}
+	/* set its type as client object */
+	auxiliar_setclass(L, TFD_CLASS_NAME, -1);
+	/* initialize remaining structure fields */
+	un->sock = sock;
+	io_init(&un->io, (p_send) NULL, (p_recv) tfd_read,
+			(p_error) socket_ioerror, &un->sock);
+	timeout_init(&un->tm, -1, -1);
+	buffer_init(&un->buf, &un->io, &un->tm);
 	if (eps > 0.0) {
 		tfd_set_timeout(sock, eps, itv);
 	}
-    return 1;
+	return 1;
 }
 
