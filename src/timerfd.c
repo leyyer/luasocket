@@ -35,6 +35,7 @@ static int global_create(lua_State *L);
 static int meth_receive(lua_State *L);
 static int meth_close(lua_State *L);
 static int meth_settimeout(lua_State *L);
+static int meth_gettime(lua_State *L);
 static int meth_getfd(lua_State *L);
 
 /* timerfd object methods */
@@ -45,6 +46,7 @@ static luaL_Reg timerfd_methods[] = {
 	{"getfd",       meth_getfd},
 	{"receive",     meth_receive},
 	{"settimeout",  meth_settimeout},
+	{"elapse",      meth_gettime},
 	{NULL,          NULL}
 };
 
@@ -69,6 +71,19 @@ LUASOCKET_API int luaopen_socket_timerfd(lua_State *L) {
 static int meth_receive(lua_State *L) {
 	p_unix un = (p_unix) auxiliar_checkclass(L, TFD_CLASS_NAME, 1);
 	return buffer_meth_receive(L, &un->buf);
+}
+
+static double __get_time(void)
+{
+	struct timespec now;
+	uint64_t ms;
+	double d;
+
+	clock_gettime(CLOCK_MONOTONIC, &now);
+	ms = now.tv_sec * 1000 + now.tv_nsec / 1000000;
+	d = (double)ms / 1000;
+
+	return d;
 }
 
 static void tfd_set_timeout(int fd, double sec, double eps)
@@ -142,6 +157,20 @@ static int meth_settimeout(lua_State *L) {
 	return 0;
 }
 
+static int meth_gettime(lua_State *L)
+{
+	double diff, c;
+	p_unix un = (p_unix) auxiliar_checkgroup(L, TFD_GEN_NAME, 1);
+
+	if (un->sock == SOCKET_INVALID)
+		return 0;
+	c = __get_time();
+	diff = c - un->tm.start;
+
+	lua_pushnumber(L, diff);
+	return 1;
+}
+
 /*=========================================================================*\
  * Library functions
  \*=========================================================================*/
@@ -208,6 +237,9 @@ static int global_create(lua_State *L) {
 	if (eps > 0.0) {
 		tfd_set_timeout(sock, eps, itv);
 	}
-	return 1;
+	un->tm.start = __get_time();
+	lua_pushnumber(L, un->tm.start);
+
+	return 2;
 }
 
