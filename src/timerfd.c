@@ -35,6 +35,7 @@ static int meth_close(lua_State *L);
 static int meth_settimeout(lua_State *L);
 static int meth_gettime(lua_State *L);
 static int meth_getfd(lua_State *L);
+static int meth_getstart(lua_State *L);
 
 /* timerfd object methods */
 static luaL_Reg timerfd_methods[] = {
@@ -44,6 +45,7 @@ static luaL_Reg timerfd_methods[] = {
 	{"getfd",       meth_getfd},
 	{"clear",       meth_clear},
 	{"timeout",     meth_settimeout},
+	{"getstart",    meth_getstart},
 	{"elapse",      meth_gettime},
 	{NULL,          NULL}
 };
@@ -128,7 +130,18 @@ static void tfd_set_timeout(int fd, double sec, double eps)
  \*-------------------------------------------------------------------------*/
 static int meth_getfd(lua_State *L) {
 	struct tmfd * un = (struct tmfd *) auxiliar_checkgroup(L, TFD_GEN_NAME, 1);
-	lua_pushnumber(L, (int) un->sock);
+	lua_pushinteger(L, un->sock);
+	return 1;
+}
+
+static int meth_getstart(lua_State *L)
+{
+	double s;
+	struct tmfd * un = (struct tmfd *) auxiliar_checkgroup(L, TFD_GEN_NAME, 1);
+
+	s = un->start / 1000.0;
+	lua_pushnumber(L, s);
+
 	return 1;
 }
 
@@ -207,7 +220,7 @@ static int global_create(lua_State *L) {
 		tfd_set_timeout(sock, eps, itv);
 	}
 	un->start = __get_time();
-	lua_pushinteger(L, un->start);
+	lua_pushnumber(L, (double)(un->start / 1000.0));
 
 	return 2;
 }
