@@ -322,6 +322,7 @@ SERIAL_OBJS=\
 	options.$(O) \
 	timeout.$(O) \
 	io.$(O) \
+	compat.$(O) \
 	usocket.$(O) \
 	serial.$(O)
 
@@ -331,6 +332,7 @@ TIMERFD_OBJS=\
 	options.$(O) \
 	timeout.$(O) \
 	io.$(O) \
+	compat.$(O) \
 	usocket.$(O) \
 	timerfd.$(O)
 
